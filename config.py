@@ -1,8 +1,6 @@
 import configparser
 import os
-import ast
-
-
+from ast import literal_eval
 class Config:
     config = configparser.ConfigParser()
 
@@ -50,4 +48,10 @@ class Config:
         if not self.check_path():
             self.create(self.kwargs)
 
-        return self.read()
+        config = self.read()
+
+        config['Settings']['roomfilters'] = literal_eval(config['Settings']['roomfilters'])
+        config['Settings']['pricefilters'] = literal_eval(config['Settings']['pricefilters'])
+        config['Settings']['n_flow'] = int(config['Settings']['n_flow'])
+
+        return config
