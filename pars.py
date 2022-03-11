@@ -1,5 +1,5 @@
 import math
-
+from pprint import pprint
 import requests
 from bs4 import BeautifulSoup as bs
 import multiprocessing
@@ -54,10 +54,8 @@ class Parser:
 
     def pagination(self):
         self.urls = [self.start_url]
-        print(self.start_url)
 
         while True:
-            print(self.urls[-1])
             html = self.get_response(self.urls[-1])
             if html.status_code == Html.Ok.value:
                 buttons = bs(html.text, 'html.parser')
@@ -73,16 +71,6 @@ class Parser:
                 sys.exit(html.status_code)
 
         self.cut_list()
-
-    def create_data_dict(self):
-        dict = {}
-        dict['price'] = []
-        dict['rooms'] = []
-        dict['link'] = []
-        dict['area'] = []
-        dict['adress'] = []
-
-        return dict
 
     def check_filters(self, room, price):
         one = room in self.room_filters
@@ -106,7 +94,7 @@ class Parser:
                 dict['rooms'].append(offer['roomsTotalKey'])
                 dict['link'].append(offer['shareUrl'])
                 dict['area'].append(offer['area']['value'])
-                dict['adress'].append(
+                dict['address'].append(
                     offer['location']['structuredAddress']['component'][-2]['address'] + ', ' +
                     offer['location']['structuredAddress']['component'][-1]['address'])
 
@@ -114,10 +102,34 @@ class Parser:
 
     def parse(self, urls):
         for url in urls:
-            self.manager.append(self.get_content(self.get_response(url), self.create_data_dict()))
-        print(self.manager)
+            self.manager.append(self.get_content(self.get_response(url),
+                                                 {i: [] for i in ['price', 'rooms', 'link', 'area', 'address']}))
+
+    def asynch(self):
+        processes = []
+        for urls in self.cut_urls:
+            processes.append(multiprocessing.Process(target=self.parse, args=(urls,)))
+
+        for process in processes:
+            process.start()
+            process.join()
+
+        for process in processes:
+            process.close()
+        self.concat_dict()
+
+    def concat_dict(self):
+        dct = {}
+        for key in self.manager[0].keys():
+            lst = []
+            for i in range(len(self.manager)):
+                lst.extend(self.manager[i][key])
+            dct[key] = lst
+        self.manager = dct
 
     def main(self):
         self.pagination()
-        print(self.cut_urls)
-        self.parse(self.cut_urls[0])
+        self.asynch()
+
+    def get_data(self):
+        return self.manager
