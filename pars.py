@@ -1,11 +1,8 @@
 import math
-from pprint import pprint
 import requests
 from bs4 import BeautifulSoup as bs
 import multiprocessing
-from multiprocessing.pool import ThreadPool
 import json
-import os
 from config import Config
 from enum import Enum
 import sys
@@ -25,9 +22,8 @@ class Html(Enum):
 
 class Parser:
     def __init__(self, config_path):
-        self.__config = Config('config.ini')
+        self.__config = Config(config_path)
         self.__config = self.__config.get_data()['Settings']
-
         self.__start_url = self.__config['url'][2:-2]
         self.__room_filters = self.__config['roomfilters']
         self.__price_filters = self.__config['pricefilters']
@@ -92,9 +88,7 @@ class Parser:
                 dict['rooms'].append(offer['roomsTotalKey'])
                 dict['link'].append(offer['shareUrl'])
                 dict['area'].append(offer['area']['value'])
-                dict['address'].append(
-                    offer['location']['structuredAddress']['component'][-2]['address'] + ', ' +
-                    offer['location']['structuredAddress']['component'][-1]['address'])
+                dict['address'].append(', '.join(map(lambda lst: lst['address'], offer['location']['structuredAddress']['component'][-4:-1])))
 
         return dict
 

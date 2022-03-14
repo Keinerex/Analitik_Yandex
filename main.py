@@ -1,7 +1,5 @@
-import pars
+from analyze import Analyze
 
 if __name__ == '__main__':
-    parser = pars.Parser('config.ini')
-    print(parser.get_data())
-
-
+    analyzer = Analyze('config.ini')
+    analyzer.main()
