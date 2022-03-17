@@ -8,18 +8,6 @@ from enum import Enum
 import sys
 
 
-class Html(Enum):
-    Ok = 200
-    Bad_Request = 401
-    Forbidden = 403
-    Not_Found = 404
-    Request_timeout = 408
-    Locked = 423
-    Bad_Gateway = 502
-    Gateway_Timeout = 504
-    Connection_Timed_Out = 522
-
-
 class Parser:
     def __init__(self, config_path):
         self.__config = Config(config_path)
@@ -51,7 +39,7 @@ class Parser:
 
         while True:
             html = self.__get_response(self.__urls[-1])
-            if html.status_code == Html.Ok.value:
+            if html.status_code == 200:
                 buttons = bs(html.text, 'html.parser')
                 buttons = buttons.find('div', class_='Pager Pager_theme_islands OffersSerp__pager')
                 buttons = buttons.findAll('a', class_='Pager__radio-link')
@@ -88,7 +76,8 @@ class Parser:
                 dict['rooms'].append(offer['roomsTotalKey'])
                 dict['link'].append(offer['shareUrl'])
                 dict['area'].append(offer['area']['value'])
-                dict['address'].append(', '.join(map(lambda lst: lst['address'], offer['location']['structuredAddress']['component'][-4:-1])))
+                dict['address'].append(', '.join(
+                    map(lambda lst: lst['address'], offer['location']['structuredAddress']['component'][-4:-1])))
 
         return dict
 
