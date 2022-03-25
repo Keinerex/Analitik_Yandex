@@ -12,7 +12,6 @@ class Analyze:
         self.__frame = pd.DataFrame(self.__data).sort_values('rooms', axis=0).reset_index(drop=True)
         print(self.__frame)
 
-
     def __convert_sub(self, lst, n):
         return list(map(lambda x: x.split(', ')[n], lst))
 
@@ -31,11 +30,18 @@ class Analyze:
         sub = sorted(list(sub))
         rooms = sorted(list(set(self.__data['rooms'])))
         rooms.append('all')
-        self.__area_frame = pd.DataFrame({subj: {room: self.__mean([tup[4] for tup in self.__frame.itertuples() if (tup[2] == room or room == 'all') and (subj in tup[5] or subj == 'all')]) for room in rooms} for subj in sub}).T
-        self.__count_frame = pd.DataFrame({subj: {room: len([tup[1] for tup in self.__frame.itertuples() if (tup[2] == room or room == 'all') and (subj in tup[5] or subj == 'all')]) for room in rooms} for subj in sub}).T
-        self.__price_frame = pd.DataFrame({subj: {room: self.__mean([tup[1] for tup in self.__frame.itertuples() if (tup[2] == room or room == 'all') and (subj in tup[5] or subj == 'all')]) for room in rooms} for subj in sub}).T
-
-
+        self.__area_frame = pd.DataFrame({subj: {room: self.__mean([tup[4] for tup in self.__frame.itertuples() if
+                                                                    (tup[2] == room or room == 'all') and (
+                                                                                subj in tup[5] or subj == 'all')]) for
+                                                 room in rooms} for subj in sub}).T
+        self.__count_frame = pd.DataFrame({subj: {room: len([tup[1] for tup in self.__frame.itertuples() if
+                                                             (tup[2] == room or room == 'all') and (
+                                                                         subj in tup[5] or subj == 'all')]) for room in
+                                                  rooms} for subj in sub}).T
+        self.__price_frame = pd.DataFrame({subj: {room: self.__mean([tup[1] for tup in self.__frame.itertuples() if
+                                                                     (tup[2] == room or room == 'all') and (
+                                                                                 subj in tup[5] or subj == 'all')]) for
+                                                  room in rooms} for subj in sub}).T
 
         print(self.__price_frame)
 
